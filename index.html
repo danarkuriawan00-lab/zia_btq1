@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Asesmen SDN 1 Gondang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0284c7;
+            --secondary-blue: #93c5fd;
+            --accent-green: #10b981;
+            --bg-gray: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #ffffff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 640px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 24px;
+            }
+        }
+
+        .font-sahabat {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.1em;
+            background: linear-gradient(to bottom, #1e293b, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.3));
+        }
+
+        .btn-masuk {
+            background-color: var(--accent-green);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-masuk:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-nav {
+            background-color: var(--primary-blue);
+            border-radius: 12px;
+            color: white;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .option-item {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+
+        .selected-option {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            transform: translateX(8px);
+        }
+
+        #loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+        }
+
+        .input-field {
+            background-color: #ffffff;
+            color: #1e293b;
+            text-align: center;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            outline: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container p-6" id="app">
+    <div id="loading-overlay">
+        <div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-400 border-t-transparent mb-4"></div>
+        <p class="font-bold text-lg">Memproses Data...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="flex flex-col items-center justify-center h-full">
+        <div class="mb-6">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiUAgnz3M-C0b4aP4NCccOVpRTBjimetBgZhyphenhyphenkGcMIcG3YY7RhacnjOZFFonylLQGbQ0LQHR7n4cOk7XN8mDb9YmRrXgJi5q7yZCEEKpQ4CYuB9WaZLCNw35_qVPvcRTizOMvZXsYVqmAOSfxDv9bUmpB9z_-2G3ecR_C1CONgsQ5-5U5NA2B9rpU4zfJnZ/w200-h200/sdn%20gng%201.png" alt="Logo SDN 1 Gondang" class="w-28 h-28 object-contain">
+        </div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 leading-tight uppercase">Selamat Datang</h1>
+            <h2 class="text-5xl font-black mb-2 font-sahabat uppercase">Sahabat</h2>
+            <p class="text-[10px] text-gray-600 font-medium tracking-widest uppercase text-center">
+                Sistem Asesmen Hasil Amanah Berprestasi Akurat & Terpercaya
+            </p>
+        </div>
+
+        <div class="w-full space-y-4">
+            <input type="text" id="name" placeholder="NAMA LENGKAP" class="input-field uppercase">
+            <input type="number" id="absen" placeholder="NOMOR ABSEN" class="input-field">
+            <button onclick="startExam()" class="w-full py-4 mt-2 rounded-xl btn-masuk text-white font-bold text-lg shadow-lg uppercase">
+                Mulai Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam Screen -->
+    <div id="exam-screen" class="hidden flex flex-col h-full">
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                Soal <span id="current-number">1</span> / <span id="total-questions">0</span>
+            </span>
+            <span id="timer" class="text-gray-700 font-mono font-bold text-sm">00:00</span>
+        </div>
+        
+        <div class="flex-grow">
+            <div class="bg-blue-50 rounded-2xl p-5 mb-6 border-l-4 border-blue-600">
+                <p id="question-text" class="text-base font-bold text-gray-800 leading-relaxed">Memuat...</p>
+            </div>
+            <div id="options-container" class="space-y-3"></div>
+        </div>
+
+        <div class="flex justify-between items-center mt-6 pb-4 gap-3">
+            <button onclick="prevQuestion()" id="prev-btn" class="btn-nav flex-1 opacity-50" disabled>KEMBALI</button>
+            <button onclick="handleNext()" class="btn-nav flex-1" id="next-btn">LANJUT</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold mb-2">Selesai?</h3>
+        <p class="text-sm text-gray-600 mb-6">Pastikan semua jawaban sudah terisi.</p>
+        <div class="flex gap-3">
+            <button onclick="hideConfirm()" class="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-500">BATAL</button>
+            <button onclick="finishExam()" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold">KIRIM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz1sq6Ks2rC3lIdcA3i9TRLPebUdny0st73zmcZXI7HVVSZ63hxJWsz3_rVOH3L0gdO/exec'; 
+
+    const questions = [
+{ 
+    id: 1, 
+    text: "Kitab suci umat Islam adalah ....", 
+    options: [{id:'A', text:'Injil'}, {id:'B', text:'Al-Qur\'an'}, {id:'C', text:'Taurat'}, {id:'D', text:'Zabur'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 2, 
+    text: "Surat terakhir dalam Al-Qur'an adalah ....", 
+    options: [{id:'A', text:'Al-Falaq'}, {id:'B', text:'Al-Ikhlas'}, {id:'C', text:'An-Nas'}, {id:'D', text:'Al-Kautsar'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 3, 
+    text: "Surat Al-Fatihah sering disebut juga ....", 
+    options: [{id:'A', text:'Ummul Kitab'}, {id:'B', text:'Al-Mulk'}, {id:'C', text:'Al-Qadr'}, {id:'D', text:'Al-Fil'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 4, 
+    text: "Surat Al-Kautsar terdiri dari .... ayat.", 
+    options: [{id:'A', text:'3'}, {id:'B', text:'4'}, {id:'C', text:'5'}, {id:'D', text:'6'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 5, 
+    text: "Surat Al-Ikhlas menjelaskan bahwa Allah itu ....", 
+    options: [{id:'A', text:'Banyak'}, {id:'B', text:'Satu'}, {id:'C', text:'Dua'}, {id:'D', text:'Tiga'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 6, 
+    text: "Nabi yang terakhir adalah Nabi ....", 
+    options: [{id:'A', text:'Isa'}, {id:'B', text:'Musa'}, {id:'C', text:'Muhammad'}, {id:'D', text:'Yusuf'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 7, 
+    text: "Nabi Muhammad menerima wahyu pertama di ....", 
+    options: [{id:'A', text:'Gua Hira'}, {id:'B', text:'Gua Tsur'}, {id:'C', text:'Gunung Sinai'}, {id:'D', text:'Madinah'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 8, 
+    text: "Malaikat yang menyampaikan wahyu kepada nabi adalah ....", 
+    options: [{id:'A', text:'Mikail'}, {id:'B', text:'Jibril'}, {id:'C', text:'Israfil'}, {id:'D', text:'Malik'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 9, 
+    text: "Malaikat yang bertugas meniup sangkakala adalah ....", 
+    options: [{id:'A', text:'Mikail'}, {id:'B', text:'Israfil'}, {id:'C', text:'Malik'}, {id:'D', text:'Ridwan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 10, 
+    text: "Malaikat yang bertugas mencatat amal baik adalah ....", 
+    options: [{id:'A', text:'Atid'}, {id:'B', text:'Raqib'}, {id:'C', text:'Malik'}, {id:'D', text:'Jibril'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 11, 
+    text: "Surat Al-Falaq berisi permohonan ....", 
+    options: [{id:'A', text:'Kekayaan'}, {id:'B', text:'Perlindungan kepada Allah'}, {id:'C', text:'Ilmu'}, {id:'D', text:'Kesehatan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 12, 
+    text: "Surat An-Nas terdiri dari .... ayat.", 
+    options: [{id:'A', text:'5'}, {id:'B', text:'6'}, {id:'C', text:'7'}, {id:'D', text:'8'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 13, 
+    text: "Nabi yang membuat kapal besar adalah ....", 
+    options: [{id:'A', text:'Nabi Nuh'}, {id:'B', text:'Nabi Yusuf'}, {id:'C', text:'Nabi Musa'}, {id:'D', text:'Nabi Isa'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 14, 
+    text: "Nabi yang terkenal sangat tampan adalah ....", 
+    options: [{id:'A', text:'Nabi Musa'}, {id:'B', text:'Nabi Yusuf'}, {id:'C', text:'Nabi Ibrahim'}, {id:'D', text:'Nabi Yunus'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 15, 
+    text: "Nabi yang sabar ketika sakit adalah ....", 
+    options: [{id:'A', text:'Nabi Ayub'}, {id:'B', text:'Nabi Daud'}, {id:'C', text:'Nabi Yunus'}, {id:'D', text:'Nabi Nuh'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 16, 
+    text: "Nabi yang mendapat mukjizat tongkat menjadi ular adalah ....", 
+    options: [{id:'A', text:'Nabi Yusuf'}, {id:'B', text:'Nabi Musa'}, {id:'C', text:'Nabi Ibrahim'}, {id:'D', text:'Nabi Isa'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 17, 
+    text: "Nabi yang ditelan ikan besar adalah ....", 
+    options: [{id:'A', text:'Nabi Yunus'}, {id:'B', text:'Nabi Musa'}, {id:'C', text:'Nabi Yusuf'}, {id:'D', text:'Nabi Ibrahim'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 18, 
+    text: "Malaikat yang bertugas membagi rezeki adalah ....", 
+    options: [{id:'A', text:'Jibril'}, {id:'B', text:'Mikail'}, {id:'C', text:'Israfil'}, {id:'D', text:'Malik'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 19, 
+    text: "Malaikat penjaga surga adalah ....", 
+    options: [{id:'A', text:'Malik'}, {id:'B', text:'Ridwan'}, {id:'C', text:'Jibril'}, {id:'D', text:'Mikail'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 20, 
+    text: "Malaikat penjaga neraka adalah ....", 
+    options: [{id:'A', text:'Ridwan'}, {id:'B', text:'Malik'}, {id:'C', text:'Israfil'}, {id:'D', text:'Mikail'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 21, 
+    text: "Surat Al-Fatihah terdiri dari .... ayat.", 
+    options: [{id:'A', text:'6'}, {id:'B', text:'7'}, {id:'C', text:'8'}, {id:'D', text:'9'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 22, 
+    text: "Surat Al-Falaq terdiri dari .... ayat.", 
+    options: [{id:'A', text:'3'}, {id:'B', text:'4'}, {id:'C', text:'5'}, {id:'D', text:'6'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 23, 
+    text: "Surat Al-Ikhlas terdiri dari .... ayat.", 
+    options: [{id:'A', text:'3'}, {id:'B', text:'4'}, {id:'C', text:'5'}, {id:'D', text:'6'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 24, 
+    text: "Nabi pertama adalah Nabi ....", 
+    options: [{id:'A', text:'Adam'}, {id:'B', text:'Nuh'}, {id:'C', text:'Ibrahim'}, {id:'D', text:'Musa'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 25, 
+    text: "Nabi yang membangun Ka'bah adalah ....", 
+    options: [{id:'A', text:'Nabi Musa'}, {id:'B', text:'Nabi Ibrahim'}, {id:'C', text:'Nabi Yusuf'}, {id:'D', text:'Nabi Isa'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 26, 
+    text: "Nabi yang membelah laut adalah ....", 
+    options: [{id:'A', text:'Nabi Musa'}, {id:'B', text:'Nabi Yusuf'}, {id:'C', text:'Nabi Yunus'}, {id:'D', text:'Nabi Ibrahim'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 27, 
+    text: "Nabi yang pandai menafsirkan mimpi adalah ....", 
+    options: [{id:'A', text:'Nabi Yusuf'}, {id:'B', text:'Nabi Musa'}, {id:'C', text:'Nabi Daud'}, {id:'D', text:'Nabi Isa'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 28, 
+    text: "Kitab Taurat diturunkan kepada Nabi ....", 
+    options: [{id:'A', text:'Musa'}, {id:'B', text:'Isa'}, {id:'C', text:'Daud'}, {id:'D', text:'Ibrahim'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 29, 
+    text: "Kitab Injil diturunkan kepada Nabi ....", 
+    options: [{id:'A', text:'Musa'}, {id:'B', text:'Isa'}, {id:'C', text:'Daud'}, {id:'D', text:'Muhammad'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 30, 
+    text: "Kitab Zabur diturunkan kepada Nabi ....", 
+    options: [{id:'A', text:'Musa'}, {id:'B', text:'Isa'}, {id:'C', text:'Daud'}, {id:'D', text:'Ibrahim'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 31, 
+    text: "Jumlah nabi dan rasul yang wajib diketahui adalah ....", 
+    options: [{id:'A', text:'20'}, {id:'B', text:'25'}, {id:'C', text:'30'}, {id:'D', text:'40'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 32, 
+    text: "Jumlah malaikat yang wajib diketahui adalah ....", 
+    options: [{id:'A', text:'8'}, {id:'B', text:'9'}, {id:'C', text:'10'}, {id:'D', text:'11'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 33, 
+    text: "Al-Qur'an terdiri dari .... juz.", 
+    options: [{id:'A', text:'20'}, {id:'B', text:'25'}, {id:'C', text:'30'}, {id:'D', text:'40'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 34, 
+    text: "Huruf hijaiyah berjumlah ....", 
+    options: [{id:'A', text:'26'}, {id:'B', text:'27'}, {id:'C', text:'28'}, {id:'D', text:'29'}], 
+    correct: 'D' 
+  },
+  { 
+    id: 35, 
+    text: "Bacaan panjang dalam Al-Qur'an disebut ....", 
+    options: [{id:'A', text:'Mad'}, {id:'B', text:'Ikhfa'}, {id:'C', text:'Idgham'}, {id:'D', text:'Iqlab'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 36, 
+    text: "Tanda berhenti dalam Al-Qur'an disebut ....", 
+    options: [{id:'A', text:'Sukun'}, {id:'B', text:'Waqaf'}, {id:'C', text:'Tasydid'}, {id:'D', text:'Fathah'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 37, 
+    text: "Membaca Al-Qur'an harus menggunakan ....", 
+    options: [{id:'A', text:'Lagu'}, {id:'B', text:'Tajwid'}, {id:'C', text:'Cepat'}, {id:'D', text:'Diam'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 38, 
+    text: "Orang yang membaca Al-Qur'an mendapat ....", 
+    options: [{id:'A', text:'Hukuman'}, {id:'B', text:'Dosa'}, {id:'C', text:'Pahala'}, {id:'D', text:'Teguran'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 39, 
+    text: "Surat Al-Ikhlas artinya ....", 
+    options: [{id:'A', text:'Ikhlas'}, {id:'B', text:'Waktu'}, {id:'C', text:'Manusia'}, {id:'D', text:'Subuh'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 40, 
+    text: "Surat An-Nas artinya ....", 
+    options: [{id:'A', text:'Waktu'}, {id:'B', text:'Manusia'}, {id:'C', text:'Pertolongan'}, {id:'D', text:'Malam'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 41, 
+    text: "Surat Al-Falaq artinya ....", 
+    options: [{id:'A', text:'Subuh'}, {id:'B', text:'Malam'}, {id:'C', text:'Waktu'}, {id:'D', text:'Matahari'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 42, 
+    text: "Nabi yang bisa berbicara saat bayi adalah ....", 
+    options: [{id:'A', text:'Nabi Musa'}, {id:'B', text:'Nabi Isa'}, {id:'C', text:'Nabi Yusuf'}, {id:'D', text:'Nabi Yunus'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 43, 
+    text: "Nabi yang diuji dengan banjir besar adalah ....", 
+    options: [{id:'A', text:'Nabi Nuh'}, {id:'B', text:'Nabi Musa'}, {id:'C', text:'Nabi Yusuf'}, {id:'D', text:'Nabi Ibrahim'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 44, 
+    text: "Nabi yang terkenal sabar adalah ....", 
+    options: [{id:'A', text:'Nabi Ayub'}, {id:'B', text:'Nabi Yunus'}, {id:'C', text:'Nabi Yusuf'}, {id:'D', text:'Nabi Musa'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 45, 
+    text: "Malaikat yang mencabut nyawa adalah ....", 
+    options: [{id:'A', text:'Jibril'}, {id:'B', text:'Mikail'}, {id:'C', text:'Izrail'}, {id:'D', text:'Israfil'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 46, 
+    text: "Malaikat yang mencatat amal buruk adalah ....", 
+    options: [{id:'A', text:'Raqib'}, {id:'B', text:'Atid'}, {id:'C', text:'Malik'}, {id:'D', text:'Ridwan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 47, 
+    text: "Al-Qur'an diturunkan pada malam ....", 
+    options: [{id:'A', text:'Isra'}, {id:'B', text:'Mi\'raj'}, {id:'C', text:'Lailatul Qadar'}, {id:'D', text:'Idul Fitri'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 48, 
+    text: "Tempat turunnya Al-Qur'an pertama kali adalah di kota ....", 
+    options: [{id:'A', text:'Madinah'}, {id:'B', text:'Mekah'}, {id:'C', text:'Mesir'}, {id:'D', text:'Syam'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 49, 
+    text: "Nabi Muhammad lahir pada tahun ....", 
+    options: [{id:'A', text:'Gajah'}, {id:'B', text:'Hijrah'}, {id:'C', text:'Masehi'}, {id:'D', text:'Islam'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 50, 
+    text: "Membaca Al-Qur'an termasuk ....", 
+    options: [{id:'A', text:'Ibadah'}, {id:'B', text:'Permainan'}, {id:'C', text:'Pekerjaan'}, {id:'D', text:'Kebiasaan'}], 
+    correct: 'A' 
+  }    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let userData = { name: '', absen: '' };
+    let startTime;
+    let timerInterval;
+
+    function startExam() {
+        userData.name = document.getElementById('name').value.trim();
+        userData.absen = document.getElementById('absen').value.trim();
+
+        if (!userData.name || !userData.absen) {
+            alert("Isi Nama dan Absen!");
+            return;
+        }
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('exam-screen').classList.remove('hidden');
+        document.getElementById('total-questions').innerText = questions.length;
+        
+        startTime = new Date();
+        timerInterval = setInterval(updateTimer, 1000);
+        renderQuestion();
+    }
+
+    function updateTimer() {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${m}:${s}`;
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('current-number').innerText = currentQuestionIndex + 1;
+        document.getElementById('question-text').innerText = q.text;
+        document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        q.options.forEach(opt => {
+            const isSelected = userAnswers[currentQuestionIndex] === opt.id;
+            const div = document.createElement('div');
+            div.className = `option-item p-4 rounded-xl font-medium flex items-center shadow-sm ${isSelected ? 'selected-option' : ''}`;
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-full flex items-center justify-center mr-3 text-xs font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}">
+                    ${opt.id}
+                </div>
+                <span class="text-sm">${opt.text}</span>
+            `;
+            div.onclick = () => { 
+                userAnswers[currentQuestionIndex] = opt.id; 
+                renderQuestion(); 
+            };
+            container.appendChild(div);
+        });
+
+        document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+        document.getElementById('prev-btn').style.opacity = currentQuestionIndex === 0 ? '0.5' : '1';
+        document.getElementById('next-btn').innerText = currentQuestionIndex === questions.length - 1 ? "SELESAI" : "LANJUT";
+    }
+
+    function handleNext() {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion();
+        } else {
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion();
+        }
+    }
+
+    function hideConfirm() { 
+        document.getElementById('confirm-modal').style.display = 'none'; 
+    }
+
+    async function finishExam() {
+        hideConfirm();
+        clearInterval(timerInterval);
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        let correct = 0;
+        questions.forEach((q, i) => { if (userAnswers[i] === q.correct) correct++; });
+        const score = Math.round((correct / questions.length) * 100);
+
+        const payload = new URLSearchParams();
+        payload.append('timestamp', new Date().toLocaleString());
+        payload.append('nama', userData.name);
+        payload.append('absen', userData.absen);
+        payload.append('skor', score);
+        payload.append('durasi', document.getElementById('timer').innerText);
+
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: payload });
+            showResult(score, correct);
+        } catch (e) {
+            showResult(score, correct);
+        } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+    }
+
+    function showResult(score, correct) {
+        document.getElementById('exam-screen').innerHTML = `
+            <div class="flex flex-col items-center justify-center text-center h-full py-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h1 class="text-xl font-black mb-1">UJIAN SELESAI</h1>
+                <p class="text-xs text-gray-500 mb-6">${userData.name} - Absen ${userData.absen}</p>
+                
+                <div class="text-6xl font-black text-blue-600 mb-6">${score}</div>
+
+                <div class="grid grid-cols-2 gap-3 w-full mb-6">
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Benar</div>
+                        <div class="text-lg font-bold text-green-600">${correct}</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Salah</div>
+                        <div class="text-lg font-bold text-red-500">${questions.length - correct}</div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="btn-nav w-full py-3 uppercase">Kembali</button>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
